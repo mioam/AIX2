@@ -2,7 +2,7 @@ import _global
 import torch
 import time
 import random
-from load import AllRelation, AllSplit, Bert
+from utils.load import AllRelation, AllSplit, Bert
 
 class AllDataset:
     def __init__(self) -> None:
