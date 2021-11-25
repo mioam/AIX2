@@ -124,7 +124,7 @@ def main():
     # dataset = FeatureDataset(['./datasets/feature/entity.pt'], (0, 100))
     # dataset = FeatureDataset(['./datasets/feature/bert.pt'])
     if args.Type == 'default':
-        dataset = AllDataset()
+        dataset = AllDataset(useAnhao=True)
         train_dataset = AllSubset(dataset, 0)
         valid_dataset = AllSubset(dataset, 1, rd=False)
     else:

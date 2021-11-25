@@ -2,12 +2,23 @@ import _global
 import torch
 import time
 import random
-from utils.load import AllRelation, AllSplit, Bert
+from utils.load import AllRelation, AllSplit, Bert, Anhao
 
 class AllDataset:
-    def __init__(self) -> None:
+    def __init__(self, useAnhao=False) -> None:
         relation = AllRelation()
         print('Relation LOADED.')
+        if useAnhao:
+            a = Anhao()
+            def check(x,y):
+                s1 = set(a[x])
+                s2 = set(a[y])
+                if s1 & s2:
+                    return True
+                return False
+            for ele in relation:
+                ele[1] = [x for x in ele[1] if check(ele[0], x[0])]
+                ele[2] = [x for x in ele[2] if check(ele[0], x[0])]
         split = AllSplit()
         print('Split LOADED.')
         print(len(split), len([0 for x in split if x == 0]))
