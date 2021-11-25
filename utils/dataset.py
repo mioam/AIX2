@@ -48,7 +48,7 @@ class AllSubset(torch.utils.data.Dataset):
         ]
         self.data = [
             x for x in data
-            if len(x[1]) > 0 or len(x[2]) > 0
+            if len(x[1]) > 0 and len(x[2]) > 0
         ]
         self.docs = [i for i,x in enumerate(self.dataset.split) if x == part]
         # print(self.dataset.split[self.dataset.relation[0][0]])
@@ -90,9 +90,10 @@ if __name__ == '__main__':
     # dataset = FeatureDataset([],part=(0, 100))
     # train = PairDataset(bertPath='/mnt/data/mzc/datasets/feature/bert.pt', relationPath='/mnt/data/mzc/datasets/splits/train.pt')
     # train = PNDataset(bertPath='/mnt/data/mzc/datasets/feature/bert.pt', relationPath='/mnt/data/mzc/datasets/pn/train.pt')
-    dataset = AllDataset()
+    dataset = AllDataset(useAnhao=True)
     train = AllSubset(dataset, 0)
     print(len(train))
     print(dataset.relation[0])
-    print(train[0])
+    print(len([x for x in train.data if len(x[1]) > 0 and len(x[2])>0]))
+    # print(train[0])
     print('the process time is: ', time.process_time() - startTime)
