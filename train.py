@@ -53,6 +53,8 @@ def eva(model, loss_fn, dataloader, step, task_name=None):
     true_neg = 0
     pos = 0
     neg = 0
+    pos_label = 0
+    neg_label = 0
 
     tot = 0
     tot_l = 0
@@ -73,8 +75,10 @@ def eva(model, loss_fn, dataloader, step, task_name=None):
             ans = output.argmax(1)
             true_pos += torch.logical_and(ans == 0, label == 0).sum()
             true_neg += torch.logical_and(ans == 1, label == 1).sum()
-            pos += (label == 0).sum()
-            neg += (label == 1).sum()
+            pos += (ans == 0).sum()
+            neg += (ans == 1).sum()
+            pos_label += (label == 0).sum()
+            neg_label += (label == 0).sum()
             for i in range(n):
                 hist.append((ex[2][i].item(), ans[i].item(), label[i].item()))
                 # if ex[2][i] != -1:
@@ -86,19 +90,24 @@ def eva(model, loss_fn, dataloader, step, task_name=None):
         tot_l += 1
         tot_loss += loss
 
-    print(f'step: {step}, pos: {pos}, neg: {neg}, avg_loss: {tot_loss / tot_l}, true_pos acc: {true_pos / pos}, true_neg acc: {true_neg / neg}')
+
+    recall = true_pos / pos_label
+    precision = true_pos / pos
+    F1 = 2 * recall * precision / (recall + precision)
+    print(f'step: {step}, pos: {pos_label}, neg: {neg_label}, avg_loss: {tot_loss / tot_l}, recall: {recall}, precision: {precision}, F1: {F1}')
 
     if task_name is not None:
         global writer
         writer.add_scalar(f'loss/{task_name}', tot_loss / tot_l, step)
-        writer.add_scalar(f'true_pos acc/{task_name}', true_pos / pos, step)
-        writer.add_scalar(f'true_neg acc/{task_name}', true_neg / neg, step)
-    if task_name == 'best':
-        global NAME
-        if not os.path.exists('./hist'):
-            os.makedirs('./hist') 
-        torch.save(hist, f'./hist/{NAME}.pt')
-
+        writer.add_scalar(f'recall/{task_name}', recall, step)
+        writer.add_scalar(f'precision/{task_name}', precision, step)
+        writer.add_scalar(f'F1 score/{task_name}', F1, step)
+    # if task_name == 'best':
+    #     global NAME
+    #     if not os.path.exists('./hist'):
+    #         os.makedirs('./hist') 
+    #     torch.save(hist, f'./hist/{NAME}.pt')
+    return F1
     return (true_pos + true_neg) / tot
 
 
@@ -159,7 +168,7 @@ def main():
             step += 1
             
             writer.add_scalar('loss/train', loss.item(), step)
-            if step % 10000 == 0 :
+            if step % 1000 == 0 :
                 # eva(model, loss_fn, train_dataloader, step, task_name='train2')
                 acc = eva(model, loss_fn, valid_dataloader, step, task_name='valid')
                 global BEST
