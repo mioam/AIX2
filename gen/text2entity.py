@@ -6,7 +6,7 @@ from utils.text2entity import getEntity
 
 if __name__ == '__main__':
 
-    text = Text()[:4]
+    text = Text()
     # print(text)
     entity = getEntity(text)
     # print(anhao)
