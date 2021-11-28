@@ -1,6 +1,7 @@
 import hanlp
 import torch
 import re
+from tqdm import tqdm
 
 class NER:
     def __init__(self):
@@ -34,8 +35,8 @@ def get_key(ner, plain_text_arr):
     sort_arr.sort(key=lambda x: len(x[1]))
     sort_s = [x[1] for x in sort_arr]
     result = []
-    # for i in tqdm(range(0, len(sort_s), 2048)):
-    for i in range(0, len(sort_s), 2048):
+    for i in tqdm(range(0, len(sort_s), 2048)):
+    # for i in range(0, len(sort_s), 2048):
         result.extend(ner(sort_s[i:i+2048]))
     result = [(x[0], x[1]) for x in zip(sort_arr, result)]
     result.sort(key=lambda x: x[0])
