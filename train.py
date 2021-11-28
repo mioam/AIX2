@@ -166,7 +166,7 @@ def main():
             loss.backward()
             optimizer.step()
             step += 1
-            
+            # print(loss.item())
             writer.add_scalar('loss/train', loss.item(), step)
             if step % 100 == 0 :
                 # eva(model, loss_fn, train_dataloader, step, task_name='train2')

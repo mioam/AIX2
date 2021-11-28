@@ -94,6 +94,21 @@ if __name__ == '__main__':
     train = AllSubset(dataset, 0)
     print(len(train))
     print(dataset.relation[0])
-    print(len([x for x in train.data if len(x[1]) > 0 and len(x[2])>0]))
+    # print(sum([x[1] for x in train.data]))
+    # print(sum([x[2] for x in train.data]))
+    from utils.load import Text, Html, Anhao
+    content = Html()
+    anhao = Anhao()
+    l = [(x[0], a[0]) for x in train.data for a in x[2]]
+    print(len(l))
+    l = random.sample(l, 20)
+    for i, (x,y) in enumerate(l):
+        # print(i)
+        with open(f'_SameAnhao/{i}_x.html','w',encoding='utf8') as f:
+            f.write(content[x])
+        with open(f'_SameAnhao/{i}_y.html','w',encoding='utf8') as f:
+            f.write(content[y])
+        with open(f'_SameAnhao/{i}_z.txt','w',encoding='utf8') as f:
+            f.write(str(set(anhao[x]) & set(anhao[y])))
     # print(train[0])
     print('the process time is: ', time.process_time() - startTime)

@@ -11,7 +11,7 @@ if __name__ == '__main__':
 
     from multiprocessing import Pool
 
-    with Pool(3) as pool:
+    with Pool(10) as pool:
         text = pool.map(html2text, html)
 
     torch.save(text, _global.textPath)
