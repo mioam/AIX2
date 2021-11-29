@@ -1,16 +1,16 @@
 import _global
 import torch
 from transformers import AutoTokenizer, AutoModel
-
+from tqdm import tqdm
 # DEVICE = _global.device
 
 class BERT:
     def __init__(self):
         self.device = _global.device
-        name = r'hfl/chinese-legal-electra-base-discriminator'
+        # name = r'hfl/chinese-legal-electra-base-discriminator'
         # name = 'hfl/chinese-roberta-wwm-ext'
-        self.tokenizer = AutoTokenizer.from_pretrained(name)
-        self.bert = AutoModel.from_pretrained(name)
+        self.tokenizer = AutoTokenizer.from_pretrained('hfl/chinese-legal-electra-large-generator')
+        self.bert = AutoModel.from_pretrained('hfl/chinese-legal-electra-large-discriminator')
         self.bert.to(self.device)
     @torch.no_grad()
     def __call__(self, x):
@@ -46,7 +46,7 @@ def getBERT(texts):
     # print(a)
     bert = BERT()
     bert_arr = []
-    for t in range(0,len(a),512):
+    for t in tqdm(range(0,len(a),512)):
         last_hidden_state = get_bert(bert, a[t:t+512])
         last_hidden_state = [last_hidden_state[i] for i in range(last_hidden_state.shape[0])]
         bert_arr.extend(last_hidden_state)
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     # a = getBERT([['你好。', '阿斯顿法国红酒看来。']])
 
     import utils.load as load
-    x = load.Text()[:10]
+    x = load.Text()[:2]
     a = getBERT(x)
     print(a)
     print(len(a))
