@@ -12,7 +12,7 @@ class NER:
             if task not in ('tok', 'ner'):
                 del HanLP[task]
         for task in HanLP.tasks.values():
-            task.sampler_builder.batch_size = 64
+            task.sampler_builder.batch_size = 32
         self.HanLP = HanLP
     def get(self, x):
         return [[b for b in a if b[1] in ('PERSON', 'LOCATION', 'ORGANIZATION')] for a in x]
