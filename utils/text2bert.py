@@ -1,15 +1,16 @@
 import _global
 import torch
-from transformers import BertTokenizerFast, BertModel
+from transformers import AutoTokenizer, AutoModel
 
 # DEVICE = _global.device
 
 class BERT:
     def __init__(self):
         self.device = _global.device
-        self.tokenizer = BertTokenizerFast.from_pretrained(
-            'hfl/chinese-roberta-wwm-ext')
-        self.bert = BertModel.from_pretrained('hfl/chinese-roberta-wwm-ext')
+        name = r'hfl/chinese-legal-electra-base-discriminator'
+        # name = 'hfl/chinese-roberta-wwm-ext'
+        self.tokenizer = AutoTokenizer.from_pretrained(name)
+        self.bert = AutoModel.from_pretrained(name)
         self.bert.to(self.device)
     @torch.no_grad()
     def __call__(self, x):
@@ -52,9 +53,11 @@ def getBERT(texts):
     # print(key_arr)
     # return 
     ret = []
+    cls = []
     for (l, r), text in zip(lines, texts):
         now = bert_arr[l:r]
         bert_ret = []
+        bert_cls = []
         for i in range(len(text)):
             start = 1
             end = len(text[i]) + 1
@@ -63,8 +66,10 @@ def getBERT(texts):
                 end += len(text[i-1])
             tmp = now[i][start:end]
             bert_ret.append(tmp)
+            bert_cls.append(now[i][0])
         ret.append(bert_ret)
-    return ret
+        cls.append(bert_cls)
+    return ret, cls
     # ans = []
     # tokenizer = BertTokenizerFast.from_pretrained(
     #     'hfl/chinese-roberta-wwm-ext')
