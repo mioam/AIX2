@@ -55,8 +55,8 @@ def getBERT(texts):
     batchsize = 32 * 8
     for t in tqdm(range(0,len(a),batchsize)):
         last_hidden_state = get_bert(bert, a[t:t+batchsize])
-        print(last_hidden_state)
-        exit()
+        # print(last_hidden_state)
+        # exit()
         last_hidden_state = [last_hidden_state[i] for i in range(last_hidden_state.shape[0])]
         bert_arr.extend(last_hidden_state)
     # print(key_arr)
