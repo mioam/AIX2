@@ -13,10 +13,10 @@ class BERT:
         self.tokenizer = AutoTokenizer.from_pretrained(_global.electra_g)
         self.bert = AutoModel.from_pretrained(_global.electra_d)
         self.bert = nn.DataParallel(self.bert ,device_ids=[0,1,2,3,4,5,6,7])
-        self.bert.to(self.device)
+        # self.bert.to(self.device)
     @torch.no_grad()
     def getBert(self, x):
-        tokens = self.tokenizer(x, return_tensors="pt", padding=True).to(self.device)
+        tokens = self.tokenizer(x, return_tensors="pt", padding=True) # .to(self.device)
         out = self.bert(**tokens)
         return out['last_hidden_state'].cpu().detach()
 
@@ -36,7 +36,7 @@ class BERT:
                 a.append(tmp)
             r = len(a)
             lines.append([l, r])
-        # print(a)
+        print('ok')
         bert_arr = []
         batchsize = 32 * 8
         for t in range(0,len(a),batchsize):
@@ -46,7 +46,8 @@ class BERT:
             last_hidden_state = [last_hidden_state[i] for i in range(last_hidden_state.shape[0])]
             bert_arr.extend(last_hidden_state)
         # print(key_arr)
-        # return 
+        # return
+        print('okk') 
         ret = []
         cls = []
         for (l, r), text in zip(lines, texts):
@@ -64,4 +65,5 @@ class BERT:
                 bert_cls.append(now[i][0])
             ret.append(bert_ret)
             cls.append(bert_cls)
+        print('okkkk') 
         return ret, cls
