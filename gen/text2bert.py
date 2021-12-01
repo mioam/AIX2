@@ -6,9 +6,8 @@ from utils.text2bert import getBERT
 
 if __name__ == '__main__':
 
-    text = Text()
     # print(text)
-    ret, cls = getBERT(text)
+    ret, cls = getBERT(Text())
     bert = {'ret':ret, 'cls':cls}
     # print(anhao)
     torch.save(bert, _global.bertPath)

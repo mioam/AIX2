@@ -25,14 +25,15 @@ class BERT:
         # print(len(x), x)
         # print(out['last_hidden_state'].shape)
         # print(out['pooler_output'].shape)
-        return out['last_hidden_state'].cpu()
+        return out['last_hidden_state'].cpu().detech()
 
 def get_bert(bert, text_arr):
     if text_arr == []:
         return []
     result = bert(text_arr)
     return result
-
+    
+@torch.no_grad()
 def getBERT(texts):
     a = []
     lines = []
@@ -47,12 +48,15 @@ def getBERT(texts):
             a.append(tmp)
         r = len(a)
         lines.append([l, r])
+    del texts
     # print(a)
     bert = BERT()
     bert_arr = []
     batchsize = 32 * 8
     for t in tqdm(range(0,len(a),batchsize)):
         last_hidden_state = get_bert(bert, a[t:t+batchsize])
+        print(last_hidden_state)
+        exit()
         last_hidden_state = [last_hidden_state[i] for i in range(last_hidden_state.shape[0])]
         bert_arr.extend(last_hidden_state)
     # print(key_arr)
