@@ -35,6 +35,9 @@ class Net(nn.Module):
 
 from models.bert import BERT
 
+def merge(a):
+    return torch.stack(a).sum(dim=0) if a!=[] else torch.zeros((1024,))
+
 class AttnNet(nn.Module):
     def __init__(self, x_dim, y_dim, num_heads) -> None:
         super().__init__()
@@ -53,8 +56,8 @@ class AttnNet(nn.Module):
     def forward(self, x, y):
         _, x = self.bert(x)
         _, y = self.bert(y)
-        x = torch.stack([torch.stack(a).sum(dim=0) for a in x])
-        y = torch.stack([torch.stack(a).sum(dim=0) for a in y])
+        x = torch.stack([merge(a) for a in x])
+        y = torch.stack([merge(a) for a in y])
         x = x.to(_global.device)
         y = y.to(_global.device)
         # print(x.shape)

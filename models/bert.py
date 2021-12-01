@@ -36,7 +36,7 @@ class BERT:
                 a.append(tmp)
             r = len(a)
             lines.append([l, r])
-        print('ok')
+        # print('ok')
         bert_arr = []
         batchsize = 32 * 8
         for t in range(0,len(a),batchsize):
@@ -47,7 +47,7 @@ class BERT:
             bert_arr.extend(last_hidden_state)
         # print(key_arr)
         # return
-        print('okk') 
+        # print('okk') 
         ret = []
         cls = []
         for (l, r), text in zip(lines, texts):
@@ -63,7 +63,8 @@ class BERT:
                 tmp = now[i][start:end]
                 bert_ret.append(tmp)
                 bert_cls.append(now[i][0])
+            
             ret.append(bert_ret)
             cls.append(bert_cls)
-        print('okkkk') 
+        # print('okkkk') 
         return ret, cls
