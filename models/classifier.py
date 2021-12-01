@@ -42,7 +42,7 @@ class AttnNet(nn.Module):
         self.y_dim = y_dim
         self.dim = 1024
         self.linear = nn.Linear(self.dim, x_dim * y_dim)
-        self.attn = nn.MultiheadAttention(y_dim, num_heads, batch_first=True)
+        self.attn = nn.MultiheadAttention(y_dim, num_heads)
         self.net = nn.Sequential(
             nn.Linear(x_dim * y_dim,self.dim),
             nn.ReLU(),
@@ -61,7 +61,10 @@ class AttnNet(nn.Module):
         # exit()
         x = self.linear(x).reshape(-1, self.x_dim, self.y_dim)
         y = self.linear(y).reshape(-1, self.x_dim, self.y_dim)
+        x = x.permute((1,0,2))
+        y = y.permute((1,0,2))
         a = self.attn(x,y,y)[0]
+        y = y.permute((1,0,2))
         a = a.reshape(-1, self.x_dim * self.y_dim)
         a = self.net(a)
         return a
