@@ -79,8 +79,8 @@ def eva(model, loss_fn, dataloader, step, task_name=None):
             neg += (ans == 1).sum()
             pos_label += (label == 0).sum()
             neg_label += (label == 0).sum()
-            for i in range(n):
-                hist.append((ex[2][i].item(), ans[i].item(), label[i].item()))
+            # for i in range(n):
+            #     hist.append((ex[2][i].item(), ans[i].item(), label[i].item()))
                 # if ex[2][i] != -1:
                 #     if ans[i] == label[i]:
                 #         hist_true.append(ex[2][i])
