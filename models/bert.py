@@ -13,10 +13,10 @@ class BERT:
         self.tokenizer = AutoTokenizer.from_pretrained(_global.electra_g)
         self.bert = AutoModel.from_pretrained(_global.electra_d)
         self.bert = nn.DataParallel(self.bert ,device_ids=[0,1,2,3,4,5,6,7])
-        # self.bert.to(self.device)
+        self.bert.to(self.device)
     @torch.no_grad()
     def getBert(self, x):
-        tokens = self.tokenizer(x, return_tensors="pt", padding=True) # .to(self.device)
+        tokens = self.tokenizer(x, return_tensors="pt", padding=True).to(self.device)
         out = self.bert(**tokens)
         return out['last_hidden_state'].cpu().detach()
 
