@@ -12,7 +12,7 @@ class BERT:
         # name = 'hfl/chinese-roberta-wwm-ext'
         self.tokenizer = AutoTokenizer.from_pretrained(_global.electra_g)
         self.bert = AutoModel.from_pretrained(_global.electra_d)
-        self.bert = nn.DataParallel(self.bert ,device_ids=[0,1,2,3,4,5,6])
+        self.bert = nn.DataParallel(self.bert ,device_ids=[0,1,2,3,4,5,6,7])
         self.bert.to(self.device)
     @torch.no_grad()
     def __call__(self, x):
@@ -50,7 +50,7 @@ def getBERT(texts):
     # print(a)
     bert = BERT()
     bert_arr = []
-    batchsize = 64 * 6
+    batchsize = 32 * 8
     for t in tqdm(range(0,len(a),batchsize)):
         last_hidden_state = get_bert(bert, a[t:t+batchsize])
         last_hidden_state = [last_hidden_state[i] for i in range(last_hidden_state.shape[0])]
