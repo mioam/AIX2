@@ -25,14 +25,14 @@ class BERT:
         # print(len(x), x)
         # print(out['last_hidden_state'].shape)
         # print(out['pooler_output'].shape)
-        return out['last_hidden_state'].cpu().detech()
+        return out['last_hidden_state'].cpu().detach()
 
 def get_bert(bert, text_arr):
     if text_arr == []:
         return []
     result = bert(text_arr)
     return result
-    
+
 @torch.no_grad()
 def getBERT(texts):
     a = []
