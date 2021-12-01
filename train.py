@@ -64,9 +64,9 @@ def eva(model, loss_fn, dataloader, step, task_name=None):
             x, y, label, ex = sample
             # print(ex)
             # exit()
-            n = x.shape[0]
-            x = x.to(_global.device)
-            y = y.to(_global.device)
+            # n = x.shape[0]
+            # x = x.to(_global.device)
+            # y = y.to(_global.device)
             label = label.to(_global.device)
             output = model(x,y)
             # print(output.shape)
