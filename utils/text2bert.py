@@ -9,8 +9,8 @@ class BERT:
         self.device = _global.device
         # name = r'hfl/chinese-legal-electra-base-discriminator'
         # name = 'hfl/chinese-roberta-wwm-ext'
-        self.tokenizer = AutoTokenizer.from_pretrained('hfl/chinese-legal-electra-large-generator')
-        self.bert = AutoModel.from_pretrained('hfl/chinese-legal-electra-large-discriminator')
+        self.tokenizer = AutoTokenizer.from_pretrained(_global.electra_g)
+        self.bert = AutoModel.from_pretrained(_global.electra_d)
         self.bert.to(self.device)
     @torch.no_grad()
     def __call__(self, x):
@@ -19,8 +19,10 @@ class BERT:
         # print(x)
         tokens = self.tokenizer(x, return_tensors="pt", padding=True).to(self.device)
         out = self.bert(**tokens)
-        print(out['last_hidden_state'].shape)
-        print(out['pooler_output'].shape)
+        # print(out)
+        # print(len(x), x)
+        # print(out['last_hidden_state'].shape)
+        # print(out['pooler_output'].shape)
         return out['last_hidden_state'].cpu()
 
 def get_bert(bert, text_arr):
@@ -99,9 +101,12 @@ if __name__ == '__main__':
 
     import utils.load as load
     x = load.Text()[:2]
-    a = getBERT(x)
-    print(a)
-    print(len(a))
-    print(len(a[0]))
-    print(a[0][0].shape)
-    print(a[0][1].shape)
+    ret, cls = getBERT(x)
+    # print(a)
+    print(len(ret))
+    print(len(ret[0]))
+    print(ret[0][0].shape)
+
+    print(len(cls))
+    print(len(cls[0]))
+    print(cls[0][0].shape)

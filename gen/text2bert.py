@@ -8,6 +8,7 @@ if __name__ == '__main__':
 
     text = Text()
     # print(text)
-    bert = getBERT(text)
+    ret, cls = getBERT(text)
+    bert = {'ret':ret, 'cls':cls}
     # print(anhao)
     torch.save(bert, _global.bertPath)
