@@ -25,7 +25,7 @@ def get_args():
     parser.add_argument("--optim", default="AdamW", choices=["Adam", "AdamW"])
     parser.add_argument("--Type", default="default", choices=["default",])
 
-    parser.add_argument("--netType", default='Net', choices=["Net", "Attn"])
+    parser.add_argument("--netType", default='Attn', choices=["Net", "Attn"])
     parser.add_argument("--num-layer", default=2, type=int)
     parser.add_argument("--act", default="ReLU", choices=["ReLU", "GLU"])
     parser.add_argument("--hidden-size", default=768, type=int)
@@ -110,7 +110,14 @@ def eva(model, loss_fn, dataloader, step, task_name=None):
     return F1
     return (true_pos + true_neg) / tot
 
-
+def collate_fn(batch):
+    ret = []
+    ret.append([x[0] for x in batch])
+    ret.append([x[1] for x in batch])
+    ret.append(torch.tensor([x[2] for x in batch]))
+    ret.append([x[3] for x in batch])
+    return ret
+    # exit()
 def main():
     
     global args
@@ -139,8 +146,8 @@ def main():
     else:
         raise 'Unknown Type'
 
-    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch, shuffle=True, drop_last=True)
-    valid_dataloader = torch.utils.data.DataLoader(valid_dataset, batch_size=args.batch, shuffle=True, drop_last=True)
+    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch, shuffle=True, drop_last=True, collate_fn=collate_fn)
+    valid_dataloader = torch.utils.data.DataLoader(valid_dataset, batch_size=args.batch, shuffle=True, drop_last=True, collate_fn=collate_fn)
     # test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch, shuffle=True, drop_last=True)
 
     
@@ -155,9 +162,9 @@ def main():
 
             if args.Type == 'default': 
                 x, y, label, ex = sample
-                n = x.shape[0]
-                x = x.to(_global.device)
-                y = y.to(_global.device)
+                # n = x.shape[0]
+                # x = x.to(_global.device)
+                # y = y.to(_global.device)
                 label = label.to(_global.device)
                 output = model(x,y)
                 loss = loss_fn(output, label)

@@ -2,7 +2,7 @@ import _global
 import torch
 import time
 import random
-from utils.load import AllRelation, AllSplit, Bert, Anhao
+from utils.load import AllRelation, AllSplit, Bert, Anhao, Text
 
 class AllDataset:
     def __init__(self, useAnhao=False) -> None:
@@ -27,10 +27,10 @@ class AllDataset:
         # print(relation[0:10])
         # exit()
 
-        bert = Bert()
-        print('Bert feature LOADED.')
+        text = Text()
+        print('text LOADED.')
 
-        self.bert = bert
+        self.text = text
         self.split = split
         self.relation = relation
 
@@ -80,7 +80,7 @@ class AllSubset(torch.utils.data.Dataset):
         #     flag = 0
         # elif len(x[2]) > 0:
         # print(a,b)
-        return self.dataset.bert[a], self.dataset.bert[b], flag, (a,b,num,flag)
+        return self.dataset.text[a], self.dataset.text[b], flag, (a,b,num,flag)
 
     def __len__(self) -> int:
         return len(self.data)
