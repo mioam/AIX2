@@ -18,7 +18,7 @@ class BERT:
     def getBert(self, x):
         tokens = self.tokenizer(x, return_tensors="pt", padding=True).to(self.device)
         out = self.bert(**tokens)
-        return out['last_hidden_state'].cpu().detach()
+        return out['last_hidden_state'].cpu().detach(), tokens
 
     def __call__(self, texts):
         # print(texts)
@@ -40,7 +40,7 @@ class BERT:
         bert_arr = []
         batchsize = 32 * 8
         for t in range(0,len(a),batchsize):
-            last_hidden_state = self.getBert(a[t:t+batchsize])
+            last_hidden_state, tokens = self.getBert(a[t:t+batchsize])
             # print(last_hidden_state)
             # exit()
             last_hidden_state = [last_hidden_state[i] for i in range(last_hidden_state.shape[0])]

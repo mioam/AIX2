@@ -85,8 +85,54 @@ class AllSubset(torch.utils.data.Dataset):
     def __len__(self) -> int:
         return len(self.data)
 
+from models.bert import BERT
+
+class MRSA(torch.utils.data.Dataset):
+    def __init__(self, path) -> None:
+        super().__init__()
+        bert = BERT()
+        data = []
+        label = []
+        self.d = {'O':0, 'B-LOC':1, 'I-LOC':2, 'B-ORG':3, 'I-ORG':4, 'B-PER':5, 'I-PER':6}
+        with open(path, 'r', encoding='utf8') as f:
+            for line in f.readlines():
+                # print(line)
+                if len(line) >= 4:
+                    data.append(line[0])
+                    label.append(self.getLabel(line[2:-1]))
+        print(len(data))
+        self.l = 500
+        self.len = len(data) // self.l
+        self.feature = []
+        self.label = []
+        for i in range(self.len):
+            now = data[i*self.l: (i+1)*self.l]
+            now_label = label[i*self.l: (i+1)*self.l]
+            out, tokens = bert.getBert(''.join(now))
+            # if out.shape[1] != len(now)+2:
+            #     print(now)
+            #     print(out.shape)
+            for j in range(len(now_label)):
+                pos = tokens.char_to_token(j)
+                self.feature.append(out[0,pos])
+                self.label.append(torch.tensor(now_label[j]))
+
+    def getLabel(self, x):
+        return self.d[x]
+
+    def __len__(self):
+        return len(self.label)
+
+    def __getitem__(self, i):
+        return self.feature[i], self.label[i]
+        
+
 if __name__ == '__main__':
     startTime = time.process_time()
+    mrsa = MRSA(r'C:\something\AI+X\project\datasets\MSRA\msra_train_bio.txt')
+    print(mrsa[0])
+    exit()
+
     # dataset = FeatureDataset([],part=(0, 100))
     # train = PairDataset(bertPath='/mnt/data/mzc/datasets/feature/bert.pt', relationPath='/mnt/data/mzc/datasets/splits/train.pt')
     # train = PNDataset(bertPath='/mnt/data/mzc/datasets/feature/bert.pt', relationPath='/mnt/data/mzc/datasets/pn/train.pt')
@@ -112,3 +158,4 @@ if __name__ == '__main__':
             f.write(str(set(anhao[x]) & set(anhao[y])))
     # print(train[0])
     print('the process time is: ', time.process_time() - startTime)
+
