@@ -3,6 +3,8 @@ import torch
 import time
 import random
 from utils.load import AllRelation, AllSplit, Bert, Anhao, Text
+import os
+import math
 
 class AllDataset:
     def __init__(self, useAnhao=False) -> None:
@@ -88,24 +90,29 @@ class AllSubset(torch.utils.data.Dataset):
 from models.bert import BERT
 
 class MRSA(torch.utils.data.Dataset):
-    def __init__(self, path) -> None:
+    def __init__(self, path, save=None) -> None:
         super().__init__()
+        self.l = 500
+        self.d = {'O':0, 'B-LOC':1, 'I-LOC':2, 'B-ORG':3, 'I-ORG':4, 'B-PER':5, 'I-PER':6}
+        if (save is not None) and os.path.isfile(save):
+            self.feature, self.label = torch.load(save)
+            print(len(self))
+            return
+        
         bert = BERT()
         data = []
         label = []
-        self.d = {'O':0, 'B-LOC':1, 'I-LOC':2, 'B-ORG':3, 'I-ORG':4, 'B-PER':5, 'I-PER':6}
         with open(path, 'r', encoding='utf8') as f:
-            for line in f.readlines():
+            for line in f.readlines()[:1000]:
                 # print(line)
                 if len(line) >= 4:
                     data.append(line[0])
                     label.append(self.getLabel(line[2:-1]))
         print(len(data))
-        self.l = 500
-        self.len = len(data) // self.l
+        leng = int(math.ceil(len(data) / self.l))
         self.feature = []
         self.label = []
-        for i in range(self.len):
+        for i in range(leng):
             now = data[i*self.l: (i+1)*self.l]
             now_label = label[i*self.l: (i+1)*self.l]
             out, tokens = bert.getBert(''.join(now))
@@ -116,6 +123,8 @@ class MRSA(torch.utils.data.Dataset):
                 pos = tokens.char_to_token(j)
                 self.feature.append(out[0,pos])
                 self.label.append(torch.tensor(now_label[j]))
+        if save is not None:
+            torch.save((self.feature, self.label), save)
 
     def getLabel(self, x):
         return self.d[x]

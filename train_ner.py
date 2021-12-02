@@ -11,8 +11,8 @@ lr = 0.01
 
 net = NerNet().to(_global.device)
 
-train = MRSA(r'./MSRA/msra_train_bio.txt')
-test = MRSA(r'./MSRA/msra_test_bio.txt')
+train = MRSA(r'./MSRA/msra_train_bio.txt', r'./_train.pt')
+test = MRSA(r'./MSRA/msra_test_bio.txt', r'./_test.pt')
 
 train_loader = torch.utils.data.DataLoader(train, batch_size=32, shuffle=True)
 
@@ -22,10 +22,11 @@ loss_fn = nn.CrossEntropyLoss()
 
 @torch.no_grad()
 def eva(net, test):
+    net.eval()
     test_loader = torch.utils.data.DataLoader(test, batch_size=32)
     
     s = []
-    m = torch.zeros((7,7))
+    m = torch.zeros((7,7),dtype=torch.int)
     for feature, label in test_loader:
         feature = feature.to(_global.device)
         label = label.to(_global.device)
@@ -55,3 +56,11 @@ for epoch in range(num_epoch):
     sv, mv = eva(net, test)
     print(sv)
     print(mv)
+    for i in range(7):
+        tp = mv[i,i]
+        fp = mv[i,:].sum() - tp
+        fn = mv[:,i].sum() - tp
+        recall = tp / (tp + fn)
+        precision = tp / (tp + fp)
+        F1  = 2 * recall * precision / (recall + precision)
+        print(f'{i}: recall {recall}, precision: {precision}, F1: {F1}')

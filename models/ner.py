@@ -10,7 +10,8 @@ class NerNet(nn.Module):
     def __init__(self) -> None:
         super().__init__()
         self.dim = 1024
+        self.dropout = nn.Dropout(0.5)
         self.linear = nn.Linear(self.dim, 7)
 
     def forward(self, x,):
-        return self.linear(x)
+        return self.linear(self.dropout(x))
