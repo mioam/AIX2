@@ -31,6 +31,7 @@ def eva(net, test):
         label = label.to(_global.device)
         out = net(feature)
         loss = loss_fn(out,label)
+        s.append(loss.item())
         for i in range(out.shape[0]):
             a = out[i].argmax().item()
             b = label[i].item()
@@ -43,7 +44,7 @@ for epoch in range(num_epoch):
     for feature, label in train_loader:
         feature = feature.to(_global.device)
         label = label.to(_global.device)
-        out = net(feature)
+        owut = net(feature)
         loss = loss_fn(out,label)
         optimzer.zero_grad()
         loss.backward()
