@@ -103,7 +103,7 @@ class MRSA(torch.utils.data.Dataset):
         data = []
         label = []
         with open(path, 'r', encoding='utf8') as f:
-            for line in f.readlines()[:1000]:
+            for line in f.readlines():
                 # print(line)
                 if len(line) >= 4:
                     data.append(line[0])
