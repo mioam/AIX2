@@ -5,8 +5,8 @@ from utils.dataset import  MRSA
 from models.ner import NerNet
 import _global
 
-num_epoch = 10
-lr = 0.01
+num_epoch = 100
+lr = 1e-3
 
 
 net = NerNet().to(_global.device)
@@ -64,3 +64,5 @@ for epoch in range(num_epoch):
         precision = tp / (tp + fp)
         F1  = 2 * recall * precision / (recall + precision)
         print(f'{i}: recall {recall}, precision: {precision}, F1: {F1}')
+
+torch.save(net.state_dict(),'./checkpoints/ner.pt')
