@@ -112,9 +112,9 @@ class ClsNet(nn.Module):
             for j, a in enumerate(now):
                 ret[i,j] = a
                 mask[i,j] = True
-        print(ret)
+        # print(ret)
         ret = ret.to(_global.device) + torch.stack(tmp).to(_global.device)
-        print(ret)
+        # print(ret)
         ret = ret.permute((1,0,2))
         mask = mask.to(_global.device)
         return ret, mask
@@ -122,12 +122,12 @@ class ClsNet(nn.Module):
     def forward(self, x, y):
         _, x = self.bert(x)
         _, y = self.bert(y)
-        print(x)
+        # print(x)
         x, x_mask = self.merge(x, y)
-        print(x, x_mask)
-        print(x_mask.shape, x_mask[:,-1])
+        # print(x, x_mask)
+        # print(x_mask.shape, x_mask[:,-1])
         
         a = self.trans(x, src_key_padding_mask=x_mask)
-        print(a[0])
+        # print(a[0])
         # exit()
         return self.linear(a[0])
