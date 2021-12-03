@@ -107,6 +107,7 @@ class ClsNet(nn.Module):
             now_tmp.append(self.sep)
             now_tmp = torch.stack(now_tmp) # l * 1024
             now_tmp = F.pad(now_tmp,(0, 0, 0, l+3-now_tmp.shape[0]))
+            tmp.append(now_tmp)
             for j, a in enumerate(now):
                 ret[i,j] = a
                 mask[i,j] = 1
