@@ -125,7 +125,7 @@ class ClsNet(nn.Module):
         print(x)
         x, x_mask = self.merge(x, y)
         print(x, x_mask)
-        print(x_mask[:,:,0])
+        print(x_mask.shape, x_mask[:,-1])
         
         a = self.trans(x, src_key_padding_mask=x_mask)
         print(a[0])
