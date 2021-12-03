@@ -87,7 +87,7 @@ class ClsNet(nn.Module):
 
     def merge(self, x, y):
         batch = len(x)
-        l = max([len(x[i]) + len(y[i]) for i in range(batch)])
+        l = max([len(x[i]) + len(y[i]) for i in range(batch)])+1
         
         ret = torch.zeros((batch, l+3, self.dim))
         tmp = []
@@ -105,6 +105,7 @@ class ClsNet(nn.Module):
                 now_tmp.append(self.y)
             now.append(torch.zeros((self.dim)))
             now_tmp.append(self.sep)
+
             now_tmp = torch.stack(now_tmp) # l * 1024
             now_tmp = F.pad(now_tmp,(0, 0, 0, l+3-now_tmp.shape[0]))
             tmp.append(now_tmp)
@@ -124,6 +125,7 @@ class ClsNet(nn.Module):
         print(x)
         x, x_mask = self.merge(x, y)
         print(x, x_mask)
+        print(x_mask[:,:,0])
         
         a = self.trans(x, src_key_padding_mask=x_mask)
         print(a[0])
