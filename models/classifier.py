@@ -113,6 +113,7 @@ class ClsNet(nn.Module):
                 mask[i,j] = True
         print(ret)
         ret = ret.to(_global.device) + torch.stack(tmp).to(_global.device)
+        print(ret)
         ret = ret.permute((1,0,2))
         mask = mask.to(_global.device)
         return ret, mask
@@ -125,6 +126,6 @@ class ClsNet(nn.Module):
         print(x, x_mask)
         
         a = self.trans(x, src_key_padding_mask=x_mask)
-        # print(a.shape)
+        print(a[0])
         # exit()
         return self.linear(a[0])
