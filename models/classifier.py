@@ -1,3 +1,4 @@
+import enum
 import torch
 from torch import nn
 from torch.nn import functional as F
@@ -71,3 +72,52 @@ class AttnNet(nn.Module):
         a = a.reshape(-1, self.x_dim * self.y_dim)
         a = self.net(a)
         return a
+
+class ClsNet(nn.Module):
+    def __init__(self, num_heads) -> None:
+        super().__init__()
+        self.dim = 1024
+        self.cls = nn.parameter.Parameter(torch.zeros(1024),requires_grad=True)
+        self.sep = nn.parameter.Parameter(torch.zeros(1024),requires_grad=True)
+        self.x = nn.parameter.Parameter(torch.zeros(1024),requires_grad=True)
+        self.y = nn.parameter.Parameter(torch.zeros(1024),requires_grad=True)
+        self.trans = nn.TransformerEncoderLayer(self.dim, num_heads, )
+        self.bert = BERT()
+
+    def merge(self, x, y):
+        batch = len(x)
+        l = max([len(x[i]) + len(y[i]) for i in range(batch)])
+        
+        ret = torch.zeros((batch, l+3, self.dim))
+        mask = torch.zeros((batch, l+3))
+        for i in range(batch):
+            now = [self.cls,]
+            for a in x[i]:
+                now.append(a + self.x)
+            now.append(self.sep)
+            for a in y[i]:
+                now.append(a + self.y)
+            now.append(self.sep)
+            for j, a in enumerate(now):
+                ret[i,j] = a
+                mask[i,j] = 1
+        ret = ret.permute((1,0,2)).to(_global.device)
+        mask = mask.permute((1,0)).to(_global.device)
+        return ret, mask
+    
+    def selfAttn(self, x, x_mask, y,  y_mask):
+        x = x.permute((1,0,2))
+        y = y.permute((1,0,2))
+        a = self.attn(x,y,y)[0]
+        y = y.permute((1,0,2))
+
+
+    def forward(self, x, y):
+        _, x = self.bert(x)
+        _, y = self.bert(y)
+        x, x_mask = self.merge(x, y)
+        
+        a = self.trans(x, src_key_padding_mask=x_mask)
+        print(a.shape)
+        exit()
+        return a[0]
