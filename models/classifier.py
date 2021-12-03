@@ -91,7 +91,7 @@ class ClsNet(nn.Module):
         
         ret = torch.zeros((batch, l+3, self.dim))
         tmp = []
-        mask = torch.zeros((batch, l+3))
+        mask = torch.zeros((batch, l+3),dtype=torch.bool)
         for i in range(batch):
             now = [torch.zeros((self.dim)),]
             now_tmp = [self.cls,]
@@ -110,7 +110,7 @@ class ClsNet(nn.Module):
             tmp.append(now_tmp)
             for j, a in enumerate(now):
                 ret[i,j] = a
-                mask[i,j] = 1
+                mask[i,j] = True
 
         ret = ret.to(_global.device) + torch.stack(tmp).to(_global.device)
         ret = ret.permute((1,0,2))
