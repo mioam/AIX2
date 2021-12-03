@@ -78,7 +78,7 @@ def eva(model, loss_fn, dataloader, step, task_name=None):
             pos += (ans == 0).sum()
             neg += (ans == 1).sum()
             pos_label += (label == 0).sum()
-            neg_label += (label == 0).sum()
+            neg_label += (label == 1).sum()
             # for i in range(n):
             #     hist.append((ex[2][i].item(), ans[i].item(), label[i].item()))
                 # if ex[2][i] != -1:
@@ -177,7 +177,8 @@ def main():
             loss.backward()
             optimizer.step()
             step += 1
-            # print(loss.item())
+            print(loss.item(), output, label)
+            exit()
             writer.add_scalar('loss/train', loss.item(), step)
             if step % 100 == 0 :
                 # eva(model, loss_fn, train_dataloader, step, task_name='train2')
