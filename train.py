@@ -206,7 +206,7 @@ if __name__ == '__main__':
 
     args = get_args()
     BEST = None
-    NAME = 'test'
+    NAME = f'{args.netType}'
     TIME = f'_time{time.time()}'
     print(NAME, TIME)
     writer = SummaryWriter(log_dir=os.path.join('runs', NAME+TIME))

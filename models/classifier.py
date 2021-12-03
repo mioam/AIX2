@@ -83,6 +83,7 @@ class ClsNet(nn.Module):
         self.y = nn.parameter.Parameter(torch.zeros(1024),requires_grad=True)
         self.trans = nn.TransformerEncoderLayer(self.dim, num_heads, )
         self.bert = BERT()
+        self.linear = nn.Linear(self.dim, 2)
 
     def merge(self, x, y):
         batch = len(x)
@@ -102,15 +103,8 @@ class ClsNet(nn.Module):
                 ret[i,j] = a
                 mask[i,j] = 1
         ret = ret.permute((1,0,2)).to(_global.device)
-        mask = mask.permute((1,0)).to(_global.device)
+        mask = mask.to(_global.device)
         return ret, mask
-    
-    def selfAttn(self, x, x_mask, y,  y_mask):
-        x = x.permute((1,0,2))
-        y = y.permute((1,0,2))
-        a = self.attn(x,y,y)[0]
-        y = y.permute((1,0,2))
-
 
     def forward(self, x, y):
         _, x = self.bert(x)
@@ -118,6 +112,6 @@ class ClsNet(nn.Module):
         x, x_mask = self.merge(x, y)
         
         a = self.trans(x, src_key_padding_mask=x_mask)
-        print(a.shape)
-        exit()
-        return a[0]
+        # print(a.shape)
+        # exit()
+        return self.linear(a[0])
