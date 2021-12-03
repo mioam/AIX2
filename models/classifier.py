@@ -90,19 +90,29 @@ class ClsNet(nn.Module):
         l = max([len(x[i]) + len(y[i]) for i in range(batch)])
         
         ret = torch.zeros((batch, l+3, self.dim))
+        tmp = []
         mask = torch.zeros((batch, l+3))
         for i in range(batch):
-            now = [self.cls,]
+            now = [torch.zeros((self.dim)),]
+            now_tmp = [self.cls,]
             for a in x[i]:
-                now.append(a + self.x)
-            now.append(self.sep)
+                now.append(a)
+                now_tmp.append(self.x)
+            now.append(torch.zeros((self.dim)))
+            now_tmp.append(self.sep)
             for a in y[i]:
-                now.append(a + self.y)
-            now.append(self.sep)
+                now.append(a)
+                now_tmp.append(self.y)
+            now.append(torch.zeros((self.dim)))
+            now_tmp.append(self.sep)
+            now_tmp = torch.stack(now_tmp) # l * 1024
+            now_tmp = F.pad(now_tmp,(0, l+3-now_tmp.shape[0], 0, 0))
             for j, a in enumerate(now):
                 ret[i,j] = a
                 mask[i,j] = 1
-        ret = ret.permute((1,0,2)).to(_global.device)
+
+        ret = ret.to(_global.device) + torch.stack(tmp).to(_global.device)
+        ret = ret.permute((1,0,2))
         mask = mask.to(_global.device)
         return ret, mask
 
