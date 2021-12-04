@@ -81,7 +81,7 @@ class ClsNet(nn.Module):
         self.sep = nn.parameter.Parameter(torch.zeros(1024),requires_grad=True)
         self.x = nn.parameter.Parameter(torch.zeros(1024),requires_grad=True)
         self.y = nn.parameter.Parameter(torch.zeros(1024),requires_grad=True)
-        self.trans = nn.TransformerEncoderLayer(self.dim, num_heads, )
+        self.trans = nn.TransformerEncoderLayer(self.dim, num_heads, dim_feedforward=128)
         self.bert = BERT()
         self.linear = nn.Linear(self.dim, 2)
 
