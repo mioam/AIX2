@@ -12,7 +12,7 @@ def predict(model, relation):
     model.eval()
     ret = []
     for x, y in relation:
-        output = model([x.to(_global.device)],[y.to(_global.device)])
+        output = model([x],[y])
         print(output)
         ret.append(output[0].argmax().item())
     return ret
@@ -23,7 +23,7 @@ if __name__ == '__main__':
     # path = './checkpoint/Attn.pt'
     # X = torch.load(path,map_location=_global.device)
     # model.load_state_dict(X['model'])
-
+    model.to(_global.device)
 
     a = Anhao()
     def check(x,y):
