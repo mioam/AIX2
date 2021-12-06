@@ -69,7 +69,7 @@ def eva(model, loss_fn, dataloader, step, task_name=None):
             # x = x.to(_global.device)
             # y = y.to(_global.device)
             label = label.to(_global.device)
-            output = model(x,y)
+            output = model(x,y,ex)
             # print(output.shape)
             # print(label.shape, label)
             loss = loss_fn(output, label)
@@ -171,7 +171,7 @@ def main():
                 # x = x.to(_global.device)
                 # y = y.to(_global.device)
                 label = label.to(_global.device)
-                output = model(x,y)
+                output = model(x, y, ex)
                 loss = loss_fn(output, label)
                 
             optimizer.zero_grad()

@@ -84,6 +84,7 @@ class ClsNet(nn.Module):
         self.trans = nn.TransformerEncoderLayer(self.dim, num_heads, dim_feedforward=128)
         self.bert = BERT()
         self.linear = nn.Linear(self.dim, 2)
+        self.cache = {}
 
     def merge(self, x, y):
         batch = len(x)
@@ -119,9 +120,18 @@ class ClsNet(nn.Module):
         mask = mask.to(_global.device)
         return ret, mask
 
-    def forward(self, x, y):
-        _, x = self.bert(x)
-        _, y = self.bert(y)
+    def forward(self, x, y, ex=None):
+        if ex is not None and ex[0] in self.cache:
+            x = self.cache[ex[0]]
+        else:
+            _, x = self.bert(x)
+            self.cache[ex[0]] = x
+        if ex is not None and ex[1] in self.cache:
+            y = self.cache[ex[1]]
+        else:
+            _, y = self.bert(y)
+            self.cache[ex[1]] = y
+
         # print(x)
         x, x_mask = self.merge(x, y)
         # print(x, x_mask)

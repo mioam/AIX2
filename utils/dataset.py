@@ -138,9 +138,9 @@ class MRSA(torch.utils.data.Dataset):
 
 if __name__ == '__main__':
     startTime = time.process_time()
-    mrsa = MRSA(r'C:\something\AI+X\project\datasets\MSRA\msra_train_bio.txt')
-    print(mrsa[0])
-    exit()
+    # mrsa = MRSA(r'C:\something\AI+X\project\datasets\MSRA\msra_train_bio.txt')
+    # print(mrsa[0])
+    # exit()
 
     # dataset = FeatureDataset([],part=(0, 100))
     # train = PairDataset(bertPath='/mnt/data/mzc/datasets/feature/bert.pt', relationPath='/mnt/data/mzc/datasets/splits/train.pt')
