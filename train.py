@@ -30,6 +30,7 @@ def get_args():
     parser.add_argument("--act", default="ReLU", choices=["ReLU", "GLU"])
     parser.add_argument("--hidden-size", default=768, type=int)
     parser.add_argument("--feature-type", default=0, type=int)
+    parser.add_argument("--useAnhao", action='store_true', default=False)
 
     parser.add_argument("--load-dir", default='')
     args = parser.parse_args()
@@ -144,7 +145,7 @@ def main():
     # dataset = FeatureDataset(['./datasets/feature/entity.pt'], (0, 100))
     # dataset = FeatureDataset(['./datasets/feature/bert.pt'])
     if args.Type == 'default':
-        dataset = AllDataset(useAnhao=True)
+        dataset = AllDataset(useAnhao=args.useAnhao)
         train_dataset = AllSubset(dataset, 0)
         valid_dataset = AllSubset(dataset, 1, rd=False)
     else:

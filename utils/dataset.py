@@ -7,7 +7,7 @@ import os
 import math
 
 class AllDataset:
-    def __init__(self, useAnhao=False, hard=False) -> None:
+    def __init__(self, useAnhao=False) -> None:
         relation = AllRelation()
         print('Relation LOADED.')
         if useAnhao:
@@ -18,10 +18,9 @@ class AllDataset:
                 if s1 & s2:
                     return True
                 return False
-            if hard:
-                for ele in relation:
-                    ele[1] = [x for x in ele[1] if check(ele[0], x[0])]
-                    ele[2] = [x for x in ele[2] if check(ele[0], x[0])]
+            for ele in relation:
+                ele[1] = [x for x in ele[1] if check(ele[0], x[0])]
+                ele[2] = [x for x in ele[2] if check(ele[0], x[0])]
         split = AllSplit()
         print('Split LOADED.')
         print(len(split), len([0 for x in split if x == 0]))
