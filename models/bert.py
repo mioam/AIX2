@@ -41,6 +41,7 @@ class BERT:
         batchsize = 32 * 8
         for t in range(0,len(a),batchsize):
             last_hidden_state, tokens = self.getBert(a[t:t+batchsize])
+            last_hidden_state = last_hidden_state.cpu()
             # print(last_hidden_state)
             # exit()
             last_hidden_state = [last_hidden_state[i] for i in range(last_hidden_state.shape[0])]

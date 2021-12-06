@@ -133,7 +133,7 @@ class ClsNet(nn.Module):
             self.cache[ex[1]] = y
 
         # print(x)
-        x, x_mask = self.merge(x, y)
+        x, x_mask = self.merge(x.to(_global.device), y.to(_global.device))
         # print(x, x_mask)
         # print(x_mask.shape, x_mask[:,-1])
         
