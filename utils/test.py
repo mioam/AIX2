@@ -12,7 +12,7 @@ def predict(model, relation):
     model.eval()
     ret = []
     for x, y in relation:
-        output = model([x],[y])
+        output = model([x.to(_global.device)],[y.to(_global.device)])
         print(output)
         ret.append(output[0].argmax().item())
     return ret
