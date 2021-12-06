@@ -13,16 +13,16 @@ def predict(model, relation):
     ret = []
     for x, y in relation:
         output = model([x],[y])
-        print(output)
+        # print(output)
         ret.append(output[0].argmax().item())
     return ret
 
 if __name__ == '__main__':
 
     model = AttnNet(96, 8 ,4)
-    # path = './checkpoint/Attn.pt'
-    # X = torch.load(path,map_location=_global.device)
-    # model.load_state_dict(X['model'])
+    path = './checkpoint/Attn.pt'
+    X = torch.load(path,map_location=_global.device)
+    model.load_state_dict(X['model'])
     model.to(_global.device)
 
     a = Anhao()
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     text = Text()
     o1 = []
     o2 = []
-    for id, p, n in tqdm(r[:5]):
+    for id, p, n in tqdm(r):
         
         # cnt_pT = 0
         # cnt_nT = 0
