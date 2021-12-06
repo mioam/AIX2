@@ -20,7 +20,7 @@ def predict(model, relation):
 if __name__ == '__main__':
 
     model = AttnNet(96, 8 ,4)
-    path = './checkpoint/Attn.pt'
+    path = './checkpoints/Attn.pt'
     X = torch.load(path,map_location=_global.device)
     model.load_state_dict(X['model'])
     model.to(_global.device)
