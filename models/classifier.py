@@ -206,7 +206,7 @@ class KeyNet(nn.Module):
             now = []
             for a in e:
                 # print(a.shape)
-                out = self.ner(a).cpu()
+                out = self.ner(a.to(_global.device)).cpu()
                 for key in out.shape[0]:
                     if out[key].argmax() == 5:
                         now.append(a[key])
