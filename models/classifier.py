@@ -197,6 +197,7 @@ class KeyNet(nn.Module):
         mask = mask.to(_global.device)
         return ret, mask
     
+    @torch.no_grad()
     def getkey(self, x):
         # print(x)
         # print(len(x))
