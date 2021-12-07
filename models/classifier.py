@@ -211,7 +211,7 @@ class KeyNet(nn.Module):
                 for key in range(out.shape[0]):
                     if out[key].argmax() == 5:
                         now.append(a[key])
-            ret.append(now)
+            ret.append(now[:10])
         return ret
 
     def forward(self, x, y, ex=None):
