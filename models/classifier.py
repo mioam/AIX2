@@ -199,12 +199,19 @@ class KeyNet(nn.Module):
     
     def getkey(self, x):
         # print(x)
-        print(len(x))
+        # print(len(x))
+        ret = []
         for e in x:
-            print(len(e))
+            # print(len(e))
+            now = []
             for a in e:
-                print(a.shape)
-                # out = self.ner(a)
+                # print(a.shape)
+                out = self.ner(a).cpu()
+                for key in out.shape[0]:
+                    if out[key].argmax() == 5:
+                        now.append(a[key])
+            ret.append(now)
+        return ret
 
     def forward(self, x, y, ex=None):
         if ex is not None and ex[0] in self.cache:
