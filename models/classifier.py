@@ -4,6 +4,8 @@ from torch import nn
 from torch.nn import functional as F
 import _global
 
+from models.ner import NerNet
+
 class Net(nn.Module):
     def __init__(self, num_layer=2, act='ReLU', hidden_size=768, feature_type=0) -> None:
         super().__init__()
@@ -130,6 +132,88 @@ class ClsNet(nn.Module):
             y = self.cache[ex[1]]
         else:
             _, y = self.bert(y)
+            self.cache[ex[1]] = y
+
+        # print(x)
+        x, x_mask = self.merge(x, y)
+        # print(x, x_mask)
+        # print(x_mask.shape, x_mask[:,-1])
+        
+        a = self.trans(x, src_key_padding_mask=x_mask)
+        # print(a[0])
+        # exit()
+        return self.linear(a[0])
+
+class KeyNet(nn.Module):
+    def __init__(self, num_heads) -> None:
+        super().__init__()
+        self.dim = 1024
+        self.cls = nn.parameter.Parameter(torch.zeros(1024),requires_grad=True)
+        self.sep = nn.parameter.Parameter(torch.zeros(1024),requires_grad=True)
+        self.x = nn.parameter.Parameter(torch.zeros(1024),requires_grad=True)
+        self.y = nn.parameter.Parameter(torch.zeros(1024),requires_grad=True)
+        self.trans = nn.TransformerEncoderLayer(self.dim, num_heads, dim_feedforward=128)
+        self.bert = BERT()
+        self.linear = nn.Linear(self.dim, 2)
+
+        self.ner = NerNet()
+        self.ner.load_state_dict(torch.load('./checkpoints/ner.pt',map_location='cpu'))
+        self.ner.to(_global.device)
+        self.ner.eval()
+
+        self.cache = {}
+
+    def merge(self, x, y):
+        batch = len(x)
+        l = max([len(x[i]) + len(y[i]) for i in range(batch)])+1
+        
+        ret = torch.zeros((batch, l+3, self.dim))
+        tmp = []
+        mask = torch.zeros((batch, l+3),dtype=torch.bool)
+        for i in range(batch):
+            now = [torch.zeros((self.dim)),]
+            now_tmp = [self.cls,]
+            for a in x[i]:
+                now.append(a)
+                now_tmp.append(self.x)
+            now.append(torch.zeros((self.dim)))
+            now_tmp.append(self.sep)
+            for a in y[i]:
+                now.append(a)
+                now_tmp.append(self.y)
+            now.append(torch.zeros((self.dim)))
+            now_tmp.append(self.sep)
+
+            now_tmp = torch.stack(now_tmp) # l * 1024
+            now_tmp = F.pad(now_tmp,(0, 0, 0, l+3-now_tmp.shape[0]))
+            tmp.append(now_tmp)
+            for j, a in enumerate(now):
+                ret[i,j] = a
+                mask[i,j] = True
+        # print(ret)
+        ret = ret.to(_global.device) + torch.stack(tmp).to(_global.device)
+        # print(ret)
+        ret = ret.permute((1,0,2))
+        mask = mask.to(_global.device)
+        return ret, mask
+    
+    def getkey(self, x):
+        print(x)
+        
+
+    def forward(self, x, y, ex=None):
+        if ex is not None and ex[0] in self.cache:
+            x = self.cache[ex[0]]
+        else:
+            x, _ = self.bert(x)
+            x = self.getkey(x)
+            self.cache[ex[0]] = x
+        
+        if ex is not None and ex[1] in self.cache:
+            y = self.cache[ex[1]]
+        else:
+            y, _ = self.bert(y)
+            y = self.getkey(y)
             self.cache[ex[1]] = y
 
         # print(x)
