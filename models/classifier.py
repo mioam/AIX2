@@ -198,8 +198,13 @@ class KeyNet(nn.Module):
         return ret, mask
     
     def getkey(self, x):
-        print(x)
-        
+        # print(x)
+        print(len(x))
+        for e in x:
+            print(len(e))
+            for a in e:
+                print(a.shape)
+                # out = self.ner(a)
 
     def forward(self, x, y, ex=None):
         if ex is not None and ex[0] in self.cache:
