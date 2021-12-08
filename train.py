@@ -91,8 +91,8 @@ def eva(model, loss_fn, dataloader, step, task_name=None):
         tot += n
         tot_l += 1
         tot_loss += loss
-        if tot >= 100:
-            break
+        # if tot >= 100:
+        #     break
 
 
     recall = true_pos / pos_label
