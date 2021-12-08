@@ -163,15 +163,15 @@ class ClsNet(nn.Module):
         if ex is not None:
             x0 = []
             y0 = []
-            for e in ex:
+            for _x, _y, e in zip(x,y,ex):
                 if e[0] not in self.cache:
-                    _, a = self.bert([x])
+                    _, a = self.bert([_x])
                     a = a[0]
                     self.cache[e[0]] = a
                 x0.append(self.cache[e[0]])
                 
                 if e[1] not in self.cache:
-                    _, a = self.bert([y])
+                    _, a = self.bert([_y])
                     a = a[0]
                     self.cache[e[1]] = a
                 y0.append(self.cache[e[1]])
