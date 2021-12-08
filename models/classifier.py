@@ -37,18 +37,24 @@ class Net(nn.Module):
         a = self.net(a)
         return a
 
+from models.bert import BERT
+
+def merge(a):
+    return torch.stack(a).sum(dim=0) if a!=[] else torch.zeros((1024,))
+
 
 class AttnBertNet(nn.Module):
     def __init__(self, x_dim, y_dim, num_heads) -> None:
         super().__init__()
         self.x_dim = x_dim
         self.y_dim = y_dim
-        self.linear = nn.Linear(768, x_dim * y_dim)
-        self.attn = nn.MultiheadAttention(y_dim, num_heads, batch_first=True)
+        self.dim = 768
+        self.linear = nn.Linear(self.dim, x_dim * y_dim)
+        self.attn = nn.MultiheadAttention(y_dim, num_heads)
         self.net = nn.Sequential(
-            nn.Linear(x_dim * y_dim,768),
+            nn.Linear(x_dim * y_dim, self.dim),
             nn.ReLU(),
-            nn.Linear(768,2),
+            nn.Linear(self.dim,2),
         )
         self.a = load.Bert()
 
@@ -64,16 +70,13 @@ class AttnBertNet(nn.Module):
         # print(x.shape)
         x = self.linear(x).reshape(-1, self.x_dim, self.y_dim)
         y = self.linear(y).reshape(-1, self.x_dim, self.y_dim)
+        x = x.permute((1,0,2))
+        y = y.permute((1,0,2))
         a = self.attn(x,y,y)[0]
+        y = y.permute((1,0,2))
         a = a.reshape(-1, self.x_dim * self.y_dim)
         a = self.net(a)
         return a
-
-
-from models.bert import BERT
-
-def merge(a):
-    return torch.stack(a).sum(dim=0) if a!=[] else torch.zeros((1024,))
 
 class AttnNet(nn.Module):
     def __init__(self, x_dim, y_dim, num_heads) -> None:
