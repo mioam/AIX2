@@ -78,10 +78,7 @@ if __name__ == '__main__':
         #     print(cnt_pT, cnt_nT)
         #     print(a[id])
     
-    print(cnt_p,
-    cnt_pT,
-    cnt_n,
-    cnt_nT,cnt_np)
+    print(f'数据集中有标号的对数: {cnt_p}, 其中这个方法找到的有标号的对数: {cnt_pT},\n 数据集中无标号的对数: {cnt_n}, 其中这个方法以为有标号的对数: {cnt_nT + cnt_np}, 其中有可能是漏标号的对数: {cnt_np}')
 
     from utils.examples import example
 

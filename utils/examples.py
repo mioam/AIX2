@@ -2,6 +2,7 @@ import random
 from utils.load import Anhao, Html
 
 def example(l, name, num=20, same_anhao=False):
+    print(len(l))
     html = Html()
     if same_anhao:
         anhao = Anhao()

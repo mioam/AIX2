@@ -7,7 +7,7 @@ import numpy as np
 import random
 import argparse
 
-from models.classifier import Net, AttnNet, ClsNet, KeyNet
+from models.classifier import Net, AttnNet, ClsNet, KeyNet, AttnBertNet
 
 from torch.utils.tensorboard import SummaryWriter
 
@@ -25,7 +25,7 @@ def get_args():
     parser.add_argument("--optim", default="AdamW", choices=["Adam", "AdamW"])
     parser.add_argument("--Type", default="default", choices=["default",])
 
-    parser.add_argument("--netType", default='Attn', choices=["Net", "Attn", "Cls", "Key"])
+    parser.add_argument("--netType", default='Attn', choices=["Net", "Attn", "Cls", "Key", "AttnBert"])
     parser.add_argument("--num-layer", default=2, type=int)
     parser.add_argument("--act", default="ReLU", choices=["ReLU", "GLU"])
     parser.add_argument("--hidden-size", default=768, type=int)
@@ -136,6 +136,8 @@ def main():
         model = ClsNet(4)
     elif args.netType == 'Key':
         model = KeyNet(4)
+    elif args.netType == 'AttnBert':
+        model = AttnBertNet(96, 8 ,4)
     model.to(_global.device)
 
     if args.optim == 'AdamW':

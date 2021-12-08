@@ -2,6 +2,7 @@ import enum
 import torch
 from torch import nn
 from torch.nn import functional as F
+from utils import load
 import _global
 
 from models.ner import NerNet
@@ -36,6 +37,39 @@ class Net(nn.Module):
         a = self.net(a)
         return a
 
+
+class AttnBertNet(nn.Module):
+    def __init__(self, x_dim, y_dim, num_heads) -> None:
+        super().__init__()
+        self.x_dim = x_dim
+        self.y_dim = y_dim
+        self.linear = nn.Linear(768, x_dim * y_dim)
+        self.attn = nn.MultiheadAttention(y_dim, num_heads, batch_first=True)
+        self.net = nn.Sequential(
+            nn.Linear(x_dim * y_dim,768),
+            nn.ReLU(),
+            nn.Linear(768,2),
+        )
+        self.a = load.Bert()
+
+    def forward(self, x, y, ex):
+        # print(ex)
+        x = []
+        y = []
+        for e in ex:
+            x.append(self.a[e[0]])
+            y.append(self.a[e[1]])
+        x = torch.stack(x).to(_global.device)
+        y = torch.stack(y).to(_global.device)
+        # print(x.shape)
+        x = self.linear(x).reshape(-1, self.x_dim, self.y_dim)
+        y = self.linear(y).reshape(-1, self.x_dim, self.y_dim)
+        a = self.attn(x,y,y)[0]
+        a = a.reshape(-1, self.x_dim * self.y_dim)
+        a = self.net(a)
+        return a
+
+
 from models.bert import BERT
 
 def merge(a):
@@ -56,7 +90,7 @@ class AttnNet(nn.Module):
         )
         self.bert = BERT()
 
-    def forward(self, x, y):
+    def forward(self, x, y, ex=None):
         _, x = self.bert(x)
         _, y = self.bert(y)
         x = torch.stack([merge(a) for a in x])
@@ -123,16 +157,24 @@ class ClsNet(nn.Module):
         return ret, mask
 
     def forward(self, x, y, ex=None):
-        if ex is not None and ex[0] in self.cache:
-            x = self.cache[ex[0]]
+        if ex is not None:
+            x = []
+            y = []
+            for e in ex:
+                if e[0] not in self.cache:
+                    _, a = self.bert([x])
+                    a = a[0]
+                    self.cache[e[0]] = a
+                x.append(self.cache[e[0]])
+                
+                if e[1] not in self.cache:
+                    _, a = self.bert([y])
+                    a = a[0]
+                    self.cache[e[1]] = a
+                y.append(self.cache[e[1]])
         else:
             _, x = self.bert(x)
-            self.cache[ex[0]] = x
-        if ex is not None and ex[1] in self.cache:
-            y = self.cache[ex[1]]
-        else:
             _, y = self.bert(y)
-            self.cache[ex[1]] = y
 
         # print(x)
         x, x_mask = self.merge(x, y)
@@ -215,19 +257,42 @@ class KeyNet(nn.Module):
         return ret
 
     def forward(self, x, y, ex=None):
-        if ex is not None and ex[0] in self.cache:
-            x = self.cache[ex[0]]
+        if ex is not None:
+            x = []
+            y = []
+            for e in ex:
+                if e[0] not in self.cache:
+                    _, a = self.bert([x])
+                    a = self.getkey(a)
+                    a = a[0]
+                    self.cache[e[0]] = a
+                x.append(self.cache[e[0]])
+                
+                if e[1] not in self.cache:
+                    _, a = self.bert([y])
+                    a = self.getkey(a)
+                    a = a[0]
+                    self.cache[e[1]] = a
+                y.append(self.cache[e[1]])
         else:
-            x, _ = self.bert(x)
+            _, x = self.bert(x)
+            _, y = self.bert(y)
             x = self.getkey(x)
-            self.cache[ex[0]] = x
-        
-        if ex is not None and ex[1] in self.cache:
-            y = self.cache[ex[1]]
-        else:
-            y, _ = self.bert(y)
             y = self.getkey(y)
-            self.cache[ex[1]] = y
+        
+        # if ex is not None and ex[0] in self.cache:
+        #     x = self.cache[ex[0]]
+        # else:
+        #     x, _ = self.bert(x)
+        #     x = self.getkey(x)
+        #     self.cache[ex[0]] = x
+        
+        # if ex is not None and ex[1] in self.cache:
+        #     y = self.cache[ex[1]]
+        # else:
+        #     y, _ = self.bert(y)
+        #     y = self.getkey(y)
+        #     self.cache[ex[1]] = y
 
         # print(x)
         x, x_mask = self.merge(x, y)
