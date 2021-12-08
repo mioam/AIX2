@@ -5,6 +5,7 @@ from utils.examples import example
 from models.classifier import Net, AttnNet, ClsNet, AttnBertNet
 import torch
 import os
+from utils.dataset import AllDataset, AllSubset
 from tqdm import tqdm
 
 @torch.no_grad()
@@ -40,7 +41,12 @@ if __name__ == '__main__':
         return False
 
     cnt = torch.zeros((2,3,3))
-    r = AllRelation()
+    dataset = AllDataset()
+    # train_dataset = AllSubset(dataset, 0)
+    valid_dataset = AllSubset(dataset, 1, rd=False)
+    r = valid_dataset.data
+    # r = AllRelation()
+
     text = Text()
     o1 = []
     o2 = []
