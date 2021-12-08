@@ -186,7 +186,7 @@ def main():
             # print(loss.item(), output, label)
             # exit()
             writer.add_scalar('loss/train', loss.item(), step)
-            if step % 100 == 0 :
+            if step % 1000 == 0 :
                 # eva(model, loss_fn, train_dataloader, step, task_name='train2')
                 acc = eva(model, loss_fn, valid_dataloader, step, task_name='valid')
                 global BEST
