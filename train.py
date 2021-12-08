@@ -183,7 +183,8 @@ def main():
             loss.backward()
             optimizer.step()
             step += 1
-            # print(loss.item(), output, label)
+            print(loss.item(), output, label)
+            exit()
             # exit()
             writer.add_scalar('loss/train', loss.item(), step)
             if step % 1000 == 0 :
