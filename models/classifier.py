@@ -73,7 +73,7 @@ class AttnBertNet(nn.Module):
         x = x.permute((1,0,2))
         y = y.permute((1,0,2))
         a = self.attn(x,y,y)[0]
-        y = y.permute((1,0,2))
+        a = a.permute((1,0,2))
         a = a.reshape(-1, self.x_dim * self.y_dim)
         a = self.net(a)
         return a
@@ -107,7 +107,7 @@ class AttnNet(nn.Module):
         x = x.permute((1,0,2))
         y = y.permute((1,0,2))
         a = self.attn(x,y,y)[0]
-        y = y.permute((1,0,2))
+        a = a.permute((1,0,2))
         a = a.reshape(-1, self.x_dim * self.y_dim)
         a = self.net(a)
         return a

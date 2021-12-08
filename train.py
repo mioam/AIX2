@@ -74,7 +74,8 @@ def eva(model, loss_fn, dataloader, step, task_name=None):
             # print(label.shape, label)
             loss = loss_fn(output, label)
             ans = output.argmax(1)
-            # print(output, ans)
+            # print(ex, output, label, ans)
+            # exit()
             true_pos += torch.logical_and(ans == 0, label == 0).sum()
             true_neg += torch.logical_and(ans == 1, label == 1).sum()
             pos += (ans == 0).sum()
@@ -183,8 +184,7 @@ def main():
             loss.backward()
             optimizer.step()
             step += 1
-            print(loss.item(), output, label)
-            exit()
+            # print(loss.item(), output, label)
             # exit()
             writer.add_scalar('loss/train', loss.item(), step)
             if step % 1000 == 0 :
