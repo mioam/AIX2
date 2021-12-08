@@ -161,20 +161,22 @@ class ClsNet(nn.Module):
 
     def forward(self, x, y, ex=None):
         if ex is not None:
-            x = []
-            y = []
+            x0 = []
+            y0 = []
             for e in ex:
                 if e[0] not in self.cache:
                     _, a = self.bert([x])
                     a = a[0]
                     self.cache[e[0]] = a
-                x.append(self.cache[e[0]])
+                x0.append(self.cache[e[0]])
                 
                 if e[1] not in self.cache:
                     _, a = self.bert([y])
                     a = a[0]
                     self.cache[e[1]] = a
-                y.append(self.cache[e[1]])
+                y0.append(self.cache[e[1]])
+            x = x0
+            y = y0
         else:
             _, x = self.bert(x)
             _, y = self.bert(y)
