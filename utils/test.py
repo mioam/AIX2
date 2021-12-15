@@ -14,7 +14,7 @@ def predict(model, sample):
     # ret = []
     x, y, ex = [a[0] for a in sample], [a[1] for a in sample], [a[2] for a in sample]
     output = model(x,y,ex)
-    ans = output.argmax(1).cpu()
+    ans = output.cpu()
     # for i, _ in enumerate(sample):
     #     ret.append(output[i].argmax().item())
     return ans
@@ -44,7 +44,8 @@ if __name__ == '__main__':
             return 1
         return 0
 
-    cnt = torch.zeros((2,2,4))
+    cnt = torch.zeros((2,2,4),type=torch.int)
+    hist = [[[],[],[],[]],[[],[],[],[]]]
     dataset = AllDataset()
     # train_dataset = AllSubset(dataset, 0)
     valid_dataset = AllSubset(dataset, 1, rd=False)
@@ -70,6 +71,7 @@ if __name__ == '__main__':
                 #     o1.append((id,x[0]))
                 # pred = predict(model, [(text[id],text[x[0]]), ])[0]
                 cnt[label,pred[i],anhao] += 1
+                hist[label][anhao].append(pred[i][1]-pred[i][0])
         
         if len(n):
             pred = predict(model, [(text[id], text[x[0]], (id, x[0])) for x in n])
@@ -85,9 +87,11 @@ if __name__ == '__main__':
                 # else:
                 #     anhao = 0
                 cnt[label,pred[i],anhao] += 1
+                hist[label][anhao].append(pred[i][1]-pred[i][0])
+
         # break
         # if cnt_nT > 10:
         #     print(cnt_pT, cnt_nT)
         #     print(a[id])
-    
+    torch.save(hist, './hist.pt')
     print(cnt)

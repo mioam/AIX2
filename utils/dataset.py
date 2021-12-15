@@ -61,8 +61,8 @@ class AllSubset(torch.utils.data.Dataset):
         r1 = random.random()
         r2 = random.random()
 
-        k = (len(x[2]) + 0.5) / (len(x[1]) + len(x[2]) + 1)
-        # k = 0.5
+        # k = (len(x[2]) + 0.5) / (len(x[1]) + len(x[2]) + 1)
+        k = 0.5
 
         if self.rand and (r1 < k or len(x[1]) == 0) and r2 < 0.1:
             b = random.sample(self.docs,1)[0]
