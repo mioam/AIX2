@@ -70,8 +70,8 @@ if __name__ == '__main__':
                 #     anhao = 0
                 #     o1.append((id,x[0]))
                 # pred = predict(model, [(text[id],text[x[0]]), ])[0]
-                cnt[label,pred[i],anhao] += 1
-                hist[label][anhao].append(pred[i][1]-pred[i][0])
+                cnt[label,pred[i].argmax().item(),anhao] += 1
+                hist[label][anhao].append((pred[i][1]-pred[i][0]).item())
         
         if len(n):
             pred = predict(model, [(text[id], text[x[0]], (id, x[0])) for x in n])
@@ -86,8 +86,8 @@ if __name__ == '__main__':
                 #         o2.append((id,x[0]))
                 # else:
                 #     anhao = 0
-                cnt[label,pred[i],anhao] += 1
-                hist[label][anhao].append(pred[i][1]-pred[i][0])
+                cnt[label,pred[i].argmax().item(),anhao] += 1
+                hist[label][anhao].append((pred[i][1]-pred[i][0]).item())
 
         # break
         # if cnt_nT > 10:
