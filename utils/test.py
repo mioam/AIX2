@@ -32,15 +32,19 @@ if __name__ == '__main__':
     a = Anhao()
     def check(x,y):
         if len(a[x]) == 0 or len(a[y]) == 0:
-            return False
+            return 0
         # print(a[x])
         s1 = set(a[x])
         s2 = set(a[y])
+        if (a[y][0] == a[x][0]):
+            return 3
         if (a[y][0] in s1 or a[x][0] in s2):
-            return True
-        return False
+            return 2
+        if (len(s1 | s2)):
+            return 1
+        return 0
 
-    cnt = torch.zeros((2,3,3))
+    cnt = torch.zeros((2,2,4))
     dataset = AllDataset()
     # train_dataset = AllSubset(dataset, 0)
     valid_dataset = AllSubset(dataset, 1, rd=False)
@@ -58,11 +62,12 @@ if __name__ == '__main__':
             pred = predict(model, [(text[id], text[x[0]], (id, x[0])) for x in p])
             for i, x in enumerate(p):
                 label = 0
-                if check(id,x[0]):
-                    anhao = 1
-                else:
-                    anhao = 0
-                    o1.append((id,x[0]))
+                anhao = check(id,x[0])
+                # if check(id,x[0]):
+                #     anhao = 1
+                # else:
+                #     anhao = 0
+                #     o1.append((id,x[0]))
                 # pred = predict(model, [(text[id],text[x[0]]), ])[0]
                 cnt[label,pred[i],anhao] += 1
         
@@ -70,14 +75,15 @@ if __name__ == '__main__':
             pred = predict(model, [(text[id], text[x[0]], (id, x[0])) for x in n])
             for i, x in enumerate(n):
                 label = 1
-                if check(id,x[0]):
-                    if len(a[id]) and len(a[x[0]]) and a[id][0] == a[x[0]][0]:
-                        anhao = 2
-                    else:
-                        anhao = 1
-                        o2.append((id,x[0]))
-                else:
-                    anhao = 0
+                anhao = check(id,x[0])
+                # if check(id,x[0]):
+                #     if len(a[id]) and len(a[x[0]]) and a[id][0] == a[x[0]][0]:
+                #         anhao = 2
+                #     else:
+                #         anhao = 1
+                #         o2.append((id,x[0]))
+                # else:
+                #     anhao = 0
                 cnt[label,pred[i],anhao] += 1
         break
         # if cnt_nT > 10:
