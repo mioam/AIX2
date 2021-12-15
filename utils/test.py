@@ -44,7 +44,7 @@ if __name__ == '__main__':
             return 1
         return 0
 
-    cnt = torch.zeros((2,2,4),type=torch.int)
+    cnt = torch.zeros((2,2,4),dtype=torch.int)
     hist = [[[],[],[],[]],[[],[],[],[]]]
     dataset = AllDataset()
     # train_dataset = AllSubset(dataset, 0)
