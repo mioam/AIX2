@@ -85,7 +85,7 @@ if __name__ == '__main__':
                 # else:
                 #     anhao = 0
                 cnt[label,pred[i],anhao] += 1
-        break
+        # break
         # if cnt_nT > 10:
         #     print(cnt_pT, cnt_nT)
         #     print(a[id])
