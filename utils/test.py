@@ -9,7 +9,8 @@ from utils.dataset import AllDataset, AllSubset
 from tqdm import tqdm
 
 @torch.no_grad()
-def predict(model, sample):
+def predict(model, sample, th=0):
+    # return torch.zeros((len(sample),2))
     model.eval()
     # ret = []
     x, y, ex = [a[0] for a in sample], [a[1] for a in sample], [a[2] for a in sample]
@@ -17,10 +18,13 @@ def predict(model, sample):
     ans = output.cpu()
     # for i, _ in enumerate(sample):
     #     ret.append(output[i].argmax().item())
+    ans[:,0] += th
     return ans
 
 if __name__ == '__main__':
 
+    threshold = 0
+    save_hist = False
     # model = AttnNet(96, 8 ,4)
     # path = './checkpoints/Attn.pt'
     model = AttnBertNet(96, 8 ,4)
@@ -45,7 +49,8 @@ if __name__ == '__main__':
         return 0
 
     cnt = torch.zeros((2,2,4),dtype=torch.int)
-    hist = [[[],[],[],[]],[[],[],[],[]]]
+    if save_hist:
+        hist = [[[],[],[],[]],[[],[],[],[]]]
     dataset = AllDataset()
     # train_dataset = AllSubset(dataset, 0)
     valid_dataset = AllSubset(dataset, 1, rd=False)
@@ -56,11 +61,10 @@ if __name__ == '__main__':
     o1 = []
     o2 = []
     for id, p, n in tqdm(r):
-        
         # cnt_pT = 0
         # cnt_nT = 0
         if len(p):
-            pred = predict(model, [(text[id], text[x[0]], (id, x[0])) for x in p])
+            pred = predict(model, [(text[id], text[x[0]], (id, x[0])) for x in p],th=threshold)
             for i, x in enumerate(p):
                 label = 0
                 anhao = check(id,x[0])
@@ -70,11 +74,15 @@ if __name__ == '__main__':
                 #     anhao = 0
                 #     o1.append((id,x[0]))
                 # pred = predict(model, [(text[id],text[x[0]]), ])[0]
-                cnt[label,pred[i].argmax().item(),anhao] += 1
-                hist[label][anhao].append((pred[i][1]-pred[i][0]).item())
+                # p = pred[i].argmax().item()
+                p = pred[i].argmax().item() if x[1] <=1 else 1
+                cnt[label,p,anhao] += 1
+                if save_hist:
+                    # hist[label][anhao].append(x[1])
+                    hist[label][anhao].append((pred[i][1]-pred[i][0]).item())
         
         if len(n):
-            pred = predict(model, [(text[id], text[x[0]], (id, x[0])) for x in n])
+            pred = predict(model, [(text[id], text[x[0]], (id, x[0])) for x in n],th=threshold)
             for i, x in enumerate(n):
                 label = 1
                 anhao = check(id,x[0])
@@ -86,12 +94,17 @@ if __name__ == '__main__':
                 #         o2.append((id,x[0]))
                 # else:
                 #     anhao = 0
-                cnt[label,pred[i].argmax().item(),anhao] += 1
-                hist[label][anhao].append((pred[i][1]-pred[i][0]).item())
+                # p = pred[i].argmax().item()
+                p = pred[i].argmax().item() if x[1] <=1 else 1
+                cnt[label,p,anhao] += 1
+                if save_hist:
+                    # hist[label][anhao].append(x[1])
+                    hist[label][anhao].append((pred[i][1]-pred[i][0]).item())
 
         # break
         # if cnt_nT > 10:
         #     print(cnt_pT, cnt_nT)
         #     print(a[id])
-    torch.save(hist, './hist.pt')
+    if save_hist:
+        torch.save(hist, './hist.pt')
     print(cnt)

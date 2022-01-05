@@ -38,11 +38,12 @@ class AllDataset:
 
 
 class AllSubset(torch.utils.data.Dataset):
-    def __init__(self, dataset, part, rd=True) -> None:
+    def __init__(self, dataset, part, rd=True, TrueDistribution=False) -> None:
         super().__init__()
         self.dataset = dataset
         self.part = part
         self.rand = rd
+        self.TrueDistribution = TrueDistribution
         data = [
             [x[0], x[1], [a for a in x[2] if self.dataset.split[a[0]] == self.part]]
             for x in self.dataset.relation
@@ -61,8 +62,10 @@ class AllSubset(torch.utils.data.Dataset):
         r1 = random.random()
         r2 = random.random()
 
-        # k = (len(x[2]) + 0.5) / (len(x[1]) + len(x[2]) + 1)
-        k = 0.5
+        if self.TrueDistribution:
+            k = (len(x[2]) + 0.5) / (len(x[1]) + len(x[2]) + 1)
+        else:
+            k = 0.5
 
         if self.rand and (r1 < k or len(x[1]) == 0) and r2 < 0.1:
             b = random.sample(self.docs,1)[0]

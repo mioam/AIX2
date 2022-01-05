@@ -31,7 +31,9 @@ def get_args():
     parser.add_argument("--hidden-size", default=768, type=int)
     parser.add_argument("--feature-type", default=0, type=int)
     parser.add_argument("--useAnhao", action='store_true', default=False)
+    parser.add_argument("--TrueDistribution", action='store_true', default=False)
 
+    parser.add_argument("--test", action='store_true', default=False)
     parser.add_argument("--load-dir", default='')
     args = parser.parse_args()
     return args
@@ -45,7 +47,7 @@ def set_random(seed):
 
 
 @torch.no_grad()
-def eva(model, loss_fn, dataloader, step, task_name=None):
+def eva(model, loss_fn, dataloader, step, task_name=None, th=0):
     global device
     model.eval()
     tot_loss = 0
@@ -70,18 +72,19 @@ def eva(model, loss_fn, dataloader, step, task_name=None):
             # y = y.to(_global.device)
             label = label.to(_global.device)
             output = model(x,y,ex)
+            output[:,0] += th
             # print(output.shape)
             # print(label.shape, label)
             loss = loss_fn(output, label)
             ans = output.argmax(1)
             # print(ex, output, label, ans)
             # exit()
-            true_pos += torch.logical_and(ans == 0, label == 0).sum()
-            true_neg += torch.logical_and(ans == 1, label == 1).sum()
-            pos += (ans == 0).sum()
-            neg += (ans == 1).sum()
-            pos_label += (label == 0).sum()
-            neg_label += (label == 1).sum()
+            true_pos += torch.logical_and(ans == 0, label == 0).sum().item()
+            true_neg += torch.logical_and(ans == 1, label == 1).sum().item()
+            pos += (ans == 0).sum().item()
+            neg += (ans == 1).sum().item()
+            pos_label += (label == 0).sum().item()
+            neg_label += (label == 1).sum().item()
             # for i in range(n):
             #     hist.append((ex[2][i].item(), ans[i].item(), label[i].item()))
                 # if ex[2][i] != -1:
@@ -112,8 +115,8 @@ def eva(model, loss_fn, dataloader, step, task_name=None):
     #     if not os.path.exists('./hist'):
     #         os.makedirs('./hist') 
     #     torch.save(hist, f'./hist/{NAME}.pt')
-    return F1
-    return (true_pos + true_neg) / tot
+    return recall, precision, F1
+    # return (true_pos + true_neg) / tot
 
 def collate_fn(batch):
     ret = []
@@ -152,8 +155,8 @@ def main():
     # dataset = FeatureDataset(['./datasets/feature/bert.pt'])
     if args.Type == 'default':
         dataset = AllDataset(useAnhao=args.useAnhao)
-        train_dataset = AllSubset(dataset, 0)
-        valid_dataset = AllSubset(dataset, 1, rd=False)
+        train_dataset = AllSubset(dataset, 0, TrueDistribution=args.TrueDistribution)
+        valid_dataset = AllSubset(dataset, 1, rd=False, TrueDistribution=args.TrueDistribution)
     else:
         raise 'Unknown Type'
 
@@ -165,40 +168,41 @@ def main():
     if args.Type == 'default':
         loss_fn = nn.CrossEntropyLoss()
 
-    step = 0
-    # eva(model, loss_fn, valid_dataloader, step, task_name='valid')
-    for epoch in range(args.num_epoch):
-        model.train()
-        for sample in train_dataloader:
+    if not args.test:
+        step = 0
+        # eva(model, loss_fn, valid_dataloader, step, task_name='valid')
+        for epoch in range(args.num_epoch):
+            model.train()
+            for sample in train_dataloader:
 
-            if args.Type == 'default': 
-                x, y, label, ex = sample
-                # n = x.shape[0]
-                # x = x.to(_global.device)
-                # y = y.to(_global.device)
-                label = label.to(_global.device)
-                output = model(x, y, ex)
-                loss = loss_fn(output, label)
-                
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            step += 1
-            # print(loss.item(), output, label)
-            # exit()
-            writer.add_scalar('loss/train', loss.item(), step)
-            if step % 1000 == 0 :
-                # eva(model, loss_fn, train_dataloader, step, task_name='train2')
-                acc = eva(model, loss_fn, valid_dataloader, step, task_name='valid')
-                global BEST
-                global NAME
-                if (BEST is None) or (acc > BEST):
-                    BEST = acc
-                    if not os.path.exists('./checkpoints'):
-                        os.makedirs('./checkpoints') 
-                    torch.save({'model': model.state_dict(), 'step': step, 'acc': acc, 'NAME': NAME}, os.path.join('./checkpoints', NAME + '.pt'))
+                if args.Type == 'default': 
+                    x, y, label, ex = sample
+                    # n = x.shape[0]
+                    # x = x.to(_global.device)
+                    # y = y.to(_global.device)
+                    label = label.to(_global.device)
+                    output = model(x, y, ex)
+                    loss = loss_fn(output, label)
+                    
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+                step += 1
+                # print(loss.item(), output, label)
+                # exit()
+                writer.add_scalar('loss/train', loss.item(), step)
+                if step % 10000 == 0 :
+                    # eva(model, loss_fn, train_dataloader, step, task_name='train2')
+                    acc = eva(model, loss_fn, valid_dataloader, step, task_name='valid')
+                    global BEST
+                    global NAME
+                    if (BEST is None) or (acc > BEST):
+                        BEST = acc
+                        if not os.path.exists('./checkpoints'):
+                            os.makedirs('./checkpoints') 
+                        torch.save({'model': model.state_dict(), 'step': step, 'acc': acc, 'NAME': NAME}, os.path.join('./checkpoints', NAME + '.pt'))
 
-                model.train()
+                    model.train()
 
     
     path = os.path.join('./checkpoints', NAME +
@@ -206,7 +210,9 @@ def main():
     X = torch.load(path)
     model.load_state_dict(X['model'])
 
-    eva(model, loss_fn, valid_dataloader, X['step'], task_name='best')
+    for th in np.arange(0,10.4,0.5):
+        recall, precision, F1 = eva(model, loss_fn, valid_dataloader, X['step'], task_name='best', th=-th)
+        print(th, recall, precision, F1)
 
 
 if __name__ == '__main__':
